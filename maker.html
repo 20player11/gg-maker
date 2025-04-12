@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Image to .gg File</title>
+  <style>
+    body { font-family: sans-serif; padding: 30px; text-align: center; }
+    #dropZone {
+      border: 3px dashed #7fc97f;
+      padding: 40px;
+      border-radius: 15px;
+      background: #fafffa;
+      color: #5a5a5a;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Drop or Click to Generate .gg File</h2>
+  <div id="dropZone">Drop image here or click to browse</div>
+  <input type="file" id="fileInput" accept="image/*" style="display:none;">
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.background = '#e0ffe0';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.background = '#fafffa';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.background = '#fafffa';
+      handleFile(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        handleFile(fileInput.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      if (!file || !file.type.startsWith("image/")) {
+        alert("Please select a valid image file.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const base64 = event.target.result;
+        const ggContent = `GGSV1\n${base64}`;
+        const blob = new Blob([ggContent], { type: "text/plain" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = file.name.replace(/\.[^/.]+$/, "") + ".gg";
+        a.click();
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
